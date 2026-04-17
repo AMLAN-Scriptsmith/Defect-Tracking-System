@@ -61,12 +61,45 @@ public final class DBConnection {
             return rawUrl;
         }
         if (rawUrl.startsWith("postgres://")) {
-            return "jdbc:postgresql://" + rawUrl.substring("postgres://".length());
+            return toJdbcPostgresUrl(rawUrl);
         }
         if (rawUrl.startsWith("postgresql://")) {
-            return "jdbc:" + rawUrl;
+            return toJdbcPostgresUrl(rawUrl);
         }
         return rawUrl;
+    }
+
+    private static String toJdbcPostgresUrl(String rawUrl) {
+        try {
+            String normalized = rawUrl.startsWith("postgres://")
+                    ? "postgresql://" + rawUrl.substring("postgres://".length())
+                    : rawUrl;
+
+            URI uri = new URI(normalized);
+            String host = uri.getHost();
+            int port = uri.getPort();
+            String path = uri.getPath();
+            String query = uri.getQuery();
+
+            if (host == null || path == null || path.isBlank()) {
+                return "jdbc:postgresql://" + normalized.substring("postgresql://".length());
+            }
+
+            StringBuilder jdbc = new StringBuilder("jdbc:postgresql://")
+                    .append(host);
+            if (port != -1) {
+                jdbc.append(":").append(port);
+            }
+            jdbc.append(path);
+            if (query != null && !query.isBlank()) {
+                jdbc.append("?").append(query);
+            }
+            return jdbc.toString();
+        } catch (URISyntaxException e) {
+            return rawUrl.startsWith("postgres://")
+                    ? "jdbc:postgresql://" + rawUrl.substring("postgres://".length())
+                    : "jdbc:" + rawUrl;
+        }
     }
 
     private static String inferDriver(String jdbcUrl) {
@@ -105,7 +138,9 @@ public final class DBConnection {
 
         if ((user == null || password == null) && rawUrl != null && (rawUrl.startsWith("postgres://") || rawUrl.startsWith("postgresql://"))) {
             try {
-                URI uri = new URI(rawUrl.startsWith("postgres://") ? "postgresql://" + rawUrl.substring("postgres://".length()) : rawUrl);
+                URI uri = new URI(rawUrl.startsWith("postgres://")
+                        ? "postgresql://" + rawUrl.substring("postgres://".length())
+                        : rawUrl);
                 String userInfo = uri.getUserInfo();
                 if (userInfo != null && userInfo.contains(":")) {
                     String[] parts = userInfo.split(":", 2);
