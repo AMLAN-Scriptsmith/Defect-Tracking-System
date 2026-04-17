@@ -289,6 +289,41 @@ th {
     margin-bottom: 10px;
 }
 
+.welcome-hero {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 88% 12%, rgba(242, 159, 5, 0.2), transparent 34%),
+        radial-gradient(circle at 14% 0%, rgba(14, 138, 122, 0.18), transparent 36%),
+        linear-gradient(155deg, #ffffff, #f2fbf7 58%, #fff4e4);
+}
+
+.welcome-hero::after {
+    content: "";
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    border-radius: 999px;
+    right: -80px;
+    bottom: -100px;
+    background: rgba(14, 138, 122, 0.08);
+    pointer-events: none;
+}
+
+.hero-badge {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #b9dccc;
+    background: rgba(255, 255, 255, 0.85);
+    color: #0d6358;
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.22px;
+    text-transform: uppercase;
+}
+
 .hero-copy {
     max-width: 70ch;
     color: var(--ink-soft);
@@ -310,6 +345,15 @@ th {
     padding: 10px 16px;
     border-radius: 999px;
     font-weight: 800;
+    border: 1px solid rgba(16, 32, 36, 0.08);
+    box-shadow: 0 10px 20px rgba(14, 138, 122, 0.25);
+    transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.btn-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(14, 138, 122, 0.3);
+    filter: brightness(1.03);
 }
 
 .btn-pill-secondary {
@@ -322,6 +366,48 @@ th {
 
 .hero-meta {
     color: var(--ink-soft);
+    font-weight: 600;
+}
+
+.hero-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.hero-dot {
+    color: #6b7f84;
+    font-weight: 700;
+}
+
+.stat-strip {
+    margin-top: 18px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.stat-strip article {
+    padding: 12px;
+    border: 1px solid #cfe0d5;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.stat-strip strong {
+    display: block;
+    color: #11343a;
+    font-size: 1.2rem;
+    line-height: 1.1;
+}
+
+.stat-strip span {
+    display: block;
+    margin-top: 2px;
+    color: #4f666b;
+    font-size: 0.84rem;
     font-weight: 600;
 }
 
@@ -684,5 +770,14 @@ th {
 
     .welcome-wrap {
         margin-top: 20px;
+    }
+
+    .hero-meta-row {
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    .hero-dot {
+        display: none;
     }
 }

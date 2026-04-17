@@ -38,6 +38,12 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("currentUser", user);
             resp.sendRedirect(req.getContextPath() + getLandingPathByRole(user));
         } catch (SQLException e) {
+            String message = e.getMessage();
+            if (message != null && message.toLowerCase().contains("access denied for user")) {
+                req.setAttribute("error", "Database credentials are invalid. Update DB_USER/DB_PASSWORD env vars or src/main/resources/db.properties.");
+                req.getRequestDispatcher("/signin.jsp").forward(req, resp);
+                return;
+            }
             throw new ServletException("Error while authenticating user", e);
         }
     }

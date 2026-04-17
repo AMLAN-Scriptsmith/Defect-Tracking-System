@@ -18,14 +18,36 @@
 
 <div class="container welcome-wrap">
     <section class="welcome-hero card reveal">
+        <div class="hero-badge">Built for fast-moving QA and dev teams</div>
         <p class="eyebrow">Welcome to DTS</p>
-        <h1>Track defects with clarity, speed, and team accountability.</h1>
+        <h1>Own every defect from discovery to delivery.</h1>
         <p class="hero-copy">
-            Your workspace for raising defects, assigning ownership, and driving every ticket from NEW to FIXED.
+            A focused defect workspace where testers, developers, and project managers move faster with one shared source of truth.
         </p>
         <div class="hero-cta-row">
-            <a class="btn-pill" href="<%= ctx %>/signin.jsp">Sign In</a>
+            <a class="btn-pill" href="<%= ctx %>/signin.jsp">Launch Workspace</a>
+            <a class="btn-pill btn-pill-secondary" href="<%= ctx %>/register.jsp">Create Account</a>
+        </div>
+        <div class="hero-meta-row">
             <span class="hero-meta">Tomcat + JSP + JDBC + MySQL</span>
+            <span class="hero-dot">•</span>
+            <span class="hero-meta">Role-based lifecycle tracking</span>
+            <span class="hero-dot">•</span>
+            <span class="hero-meta">Live dashboard visibility</span>
+        </div>
+        <div class="stat-strip">
+            <article>
+                <strong>100%</strong>
+                <span>Role aware workflow</span>
+            </article>
+            <article>
+                <strong>1</strong>
+                <span>Unified defect board</span>
+            </article>
+            <article>
+                <strong>24/7</strong>
+                <span>Team collaboration flow</span>
+            </article>
         </div>
     </section>
 
