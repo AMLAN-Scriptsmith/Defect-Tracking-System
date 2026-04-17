@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -57,6 +58,9 @@ public final class DBConnection {
         if (rawUrl == null || rawUrl.isBlank()) {
             return null;
         }
+        if (rawUrl.startsWith("jdbc:postgresql://")) {
+            return toJdbcPostgresUrl(rawUrl);
+        }
         if (rawUrl.startsWith("jdbc:")) {
             return rawUrl;
         }
@@ -71,9 +75,14 @@ public final class DBConnection {
 
     private static String toJdbcPostgresUrl(String rawUrl) {
         try {
-            String normalized = rawUrl.startsWith("postgres://")
-                    ? "postgresql://" + rawUrl.substring("postgres://".length())
-                    : rawUrl;
+            String normalized;
+            if (rawUrl.startsWith("postgres://")) {
+                normalized = "postgresql://" + rawUrl.substring("postgres://".length());
+            } else if (rawUrl.startsWith("jdbc:postgresql://")) {
+                normalized = rawUrl.substring("jdbc:".length());
+            } else {
+                normalized = rawUrl;
+            }
 
             URI uri = new URI(normalized);
             String host = uri.getHost();
@@ -98,7 +107,41 @@ public final class DBConnection {
         } catch (URISyntaxException e) {
             return rawUrl.startsWith("postgres://")
                     ? "jdbc:postgresql://" + rawUrl.substring("postgres://".length())
+                    : rawUrl.startsWith("jdbc:postgresql://")
+                    ? rawUrl
                     : "jdbc:" + rawUrl;
+        }
+    }
+
+    private static String[] extractUserInfo(String rawUrl) {
+        if (rawUrl == null || rawUrl.isBlank()) {
+            return null;
+        }
+
+        try {
+            String normalized;
+            if (rawUrl.startsWith("postgres://")) {
+                normalized = "postgresql://" + rawUrl.substring("postgres://".length());
+            } else if (rawUrl.startsWith("jdbc:postgresql://")) {
+                normalized = rawUrl.substring("jdbc:".length());
+            } else if (rawUrl.startsWith("postgresql://")) {
+                normalized = rawUrl;
+            } else {
+                return null;
+            }
+
+            URI uri = new URI(normalized);
+            String userInfo = uri.getUserInfo();
+            if (userInfo == null || !userInfo.contains(":")) {
+                return null;
+            }
+
+            String[] parts = userInfo.split(":", 2);
+            String parsedUser = URLDecoder.decode(parts[0], StandardCharsets.UTF_8);
+            String parsedPassword = URLDecoder.decode(parts[1], StandardCharsets.UTF_8);
+            return new String[]{parsedUser, parsedPassword};
+        } catch (URISyntaxException ignored) {
+            return null;
         }
     }
 
@@ -136,22 +179,15 @@ public final class DBConnection {
                 System.getenv("DATABASE_PASSWORD"),
                 PROPS.getProperty("db.password"));
 
-        if ((user == null || password == null) && rawUrl != null && (rawUrl.startsWith("postgres://") || rawUrl.startsWith("postgresql://"))) {
-            try {
-                URI uri = new URI(rawUrl.startsWith("postgres://")
-                        ? "postgresql://" + rawUrl.substring("postgres://".length())
-                        : rawUrl);
-                String userInfo = uri.getUserInfo();
-                if (userInfo != null && userInfo.contains(":")) {
-                    String[] parts = userInfo.split(":", 2);
-                    if (user == null || user.isBlank()) {
-                        user = parts[0];
-                    }
-                    if (password == null || password.isBlank()) {
-                        password = parts[1];
-                    }
+        if (user == null || password == null) {
+            String[] userInfoParts = extractUserInfo(rawUrl);
+            if (userInfoParts != null) {
+                if (user == null || user.isBlank()) {
+                    user = userInfoParts[0];
                 }
-            } catch (URISyntaxException ignored) {
+                if (password == null || password.isBlank()) {
+                    password = userInfoParts[1];
+                }
             }
         }
 
